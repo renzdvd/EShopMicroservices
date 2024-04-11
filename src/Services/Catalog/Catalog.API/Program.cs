@@ -19,11 +19,13 @@ builder.Services.AddMarten(opts =>
 if (builder.Environment.IsDevelopment())
     builder.Services.InitializeMartenWith<CatalogInitialData>();
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline (handled with Carter)
 app.MapCarter();
 app.UseExceptionHandler(options => { });
+app.UseHealthChecks("/health");
 
 app.Run();
