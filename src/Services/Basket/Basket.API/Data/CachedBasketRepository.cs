@@ -1,21 +1,40 @@
-﻿namespace Basket.API.Data
+﻿using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
+
+namespace Basket.API.Data
 {
-    public class CachedBasketRepository(IBasketRepository repository)
+    public class CachedBasketRepository
+        (IBasketRepository repository, IDistributedCache cache)
         : IBasketRepository
     {
         public async Task<ShoppingCart> GetBasket(string userName, CancellationToken cancellationToken)
         {
-            return await repository.GetBasket(userName, cancellationToken);
+            var cachedBasket = await cache.GetStringAsync(userName, cancellationToken);
+            if(!string.IsNullOrEmpty(cachedBasket))
+            {
+                return JsonSerializer.Deserialize<ShoppingCart>(cachedBasket)!;
+            }
+
+            var basket = await repository.GetBasket(userName, cancellationToken);
+            await cache.SetStringAsync(userName, JsonSerializer.Serialize(basket), cancellationToken);
+
+            return basket;
         }
 
         public async Task<ShoppingCart> StoreBasket(ShoppingCart basket, CancellationToken cancellationToken)
         {
-            return await repository.StoreBasket(basket, cancellationToken);
+            await repository.StoreBasket(basket, cancellationToken);
+            await cache.SetStringAsync(basket.Username, JsonSerializer.Serialize(basket));
+
+            return basket;
         }
 
-        public Task<bool> DeleteBasket(string userName, CancellationToken cancellationToken = default)
+        public async Task<bool> DeleteBasket(string userName, CancellationToken cancellationToken = default)
         {
-            return repository.DeleteBasket(userName, cancellationToken);
+            await repository.DeleteBasket(userName, cancellationToken);
+            await cache.RemoveAsync(userName, cancellationToken);
+
+            return true;
         }
     }
 }
