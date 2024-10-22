@@ -1,0 +1,10 @@
+Sqlite
+
+	- Installare Microsoft.EntityFrameworkCore.Sqlite e Microsoft.EntityFrameworkCore.Tools
+
+	Procedura Manuale per la creazione della tabella:
+		- Aprire "Package manager console"
+		- eseguire il comando: Add-Migration InitialCreate
+			- verrà creata una cartella "Migrations" che contiene il codice per la creazione e drop della tabella
+		- eseguire il comando Update-Database
+			- verrà creata la tabella con il modello specificato
