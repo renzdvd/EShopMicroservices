@@ -10,6 +10,7 @@ namespace Ordering.Infrastructure.Data.Configurations
         public void Configure(EntityTypeBuilder<Customer> builder)
         {
             builder.HasKey(c => c.Id);
+
             builder.Property(c => c.Id)
                 .HasConversion(
                     customerId => customerId.Value,
@@ -22,6 +23,7 @@ namespace Ordering.Infrastructure.Data.Configurations
 
             builder.Property(c => c.Email)
                 .HasMaxLength(100);
+
             builder.HasIndex(c => c.Email)
                 .IsUnique();
         }
