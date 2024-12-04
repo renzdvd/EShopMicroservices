@@ -12,6 +12,7 @@
 
             var product = new Product
             {
+                Id = id,
                 Name = name,
                 Price = price
             };
